@@ -9,21 +9,34 @@
     <meta property="og:description" content="Konversi soal dokumen Word dan PDF menjadi kuis Google Form secara otomatis dengan AI, dilengkapi dashboard riwayat, editor soal interaktif, ekspor CSV, dan panduan lengkap." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.svg" />
     <script>
-      // Suppress benign Vite HMR WebSocket connection logs in sandboxed development environment
+      // Suppress benign Vite HMR WebSocket connection logs and sandbox dev warnings
       (function() {
+        function isBenignMessage(msg) {
+          if (!msg) return false;
+          var str = String(msg);
+          return (
+            str.indexOf('WebSocket') !== -1 ||
+            str.indexOf('websocket') !== -1 ||
+            str.indexOf('[vite]') !== -1 ||
+            str.indexOf('closed without opened') !== -1
+          );
+        }
+
         window.addEventListener('unhandledrejection', function(event) {
           var reason = event.reason;
           var msg = (reason && (reason.message || reason.stack || '' + reason)) || '';
-          if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('websocket') !== -1 || msg.indexOf('[vite]') !== -1) {
+          if (isBenignMessage(msg)) {
             event.preventDefault();
             event.stopImmediatePropagation();
           }
         });
 
         window.addEventListener('error', function(event) {
-          var msg = event.message || '';
-          if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('websocket') !== -1 || msg.indexOf('[vite]') !== -1) {
+          var msg = (event && (event.message || event.error && event.error.message)) || '';
+          if (isBenignMessage(msg)) {
             event.preventDefault();
             event.stopImmediatePropagation();
           }
@@ -31,11 +44,26 @@
 
         var originalConsoleError = console.error;
         console.error = function() {
-          var firstArg = arguments[0];
-          if (typeof firstArg === 'string' && (firstArg.indexOf('[vite]') !== -1 || firstArg.indexOf('WebSocket closed without opened') !== -1)) {
-            return;
+          for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            var text = (arg && (arg.message || arg.stack)) || String(arg || '');
+            if (isBenignMessage(text)) {
+              return;
+            }
           }
           return originalConsoleError.apply(console, arguments);
+        };
+
+        var originalConsoleWarn = console.warn;
+        console.warn = function() {
+          for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            var text = (arg && (arg.message || arg.stack)) || String(arg || '');
+            if (isBenignMessage(text)) {
+              return;
+            }
+          }
+          return originalConsoleWarn.apply(console, arguments);
         };
       })();
     </script>

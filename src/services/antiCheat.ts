@@ -81,7 +81,6 @@ export async function reportCheatingIncident(incident: {
     }
     return await res.json();
   } catch (err: any) {
-    console.warn('Fallback generating local WhatsApp URL:', err);
     const msg = formatWhatsAppViolationMessage({
       studentName: incident.studentName,
       studentNim: incident.studentNim,

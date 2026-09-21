@@ -93,7 +93,6 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string;
         throw customErr;
       }
 
-      console.error('Google Sign In Error:', error);
       throw error;
     } finally {
       isSigningIn = false;

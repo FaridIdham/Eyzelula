@@ -36,7 +36,7 @@ export async function extractTextFromClientFile(file: File): Promise<string> {
         return mdResult.value.trim();
       }
     } catch (e) {
-      console.warn('Browser mammoth markdown failed, trying raw text:', e);
+      // Ignore fallback silently
     }
 
     try {
@@ -45,7 +45,7 @@ export async function extractTextFromClientFile(file: File): Promise<string> {
         return rawResult.value.trim();
       }
     } catch (e) {
-      console.warn('Browser mammoth raw text failed:', e);
+      // Ignore fallback silently
     }
   }
 
@@ -72,7 +72,7 @@ export async function extractTextFromClientFile(file: File): Promise<string> {
       return matches.join('\n');
     }
   } catch (err) {
-    console.warn('Client fallback binary extraction notice:', err);
+    // Ignore fallback silently
   }
 
   return '';

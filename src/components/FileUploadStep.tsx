@@ -145,7 +145,6 @@ export const FileUploadStep: React.FC<FileUploadStepProps> = ({
         if (response.ok) {
           result = await response.json();
         } else {
-          console.warn(`Backend /api/extract-questions returned status ${response.status}. Falling back to browser client-side parser...`);
           setLoadingStep('Beralih otomatis ke parser cerdas di browser (Client-Side Mode)...');
           const clientData = await extractQuestionsInBrowser(
             {
@@ -163,7 +162,6 @@ export const FileUploadStep: React.FC<FileUploadStepProps> = ({
           };
         }
       } catch (fetchErr) {
-        console.warn('Network call failed, falling back to browser client-side parser...', fetchErr);
         setLoadingStep('Beralih otomatis ke ekstraksi mandiri di browser (Client-Side Mode)...');
         const clientData = await extractQuestionsInBrowser(
           {
@@ -190,7 +188,6 @@ export const FileUploadStep: React.FC<FileUploadStepProps> = ({
       const fallbackNotice = result.fallbackUsed ? (result.message || 'Diekstrak menggunakan parser cadangan.') : undefined;
       onQuizExtracted(result.quizData, fileName, fileType, fallbackNotice);
     } catch (err: any) {
-      console.error('Extraction error:', err);
       setErrorMsg(err.message || 'Terjadi kegagalan saat mengekstrak soal.');
     } finally {
       setIsLoading(false);

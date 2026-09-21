@@ -83,7 +83,7 @@ export default function App() {
     try {
       localStorage.setItem(LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(history));
     } catch (e) {
-      console.error('Failed to persist history to localStorage', e);
+      // Ignore storage persistence failure silently
     }
   }, [history]);
 
@@ -144,7 +144,7 @@ export default function App() {
       setUser(null);
       showNotification('Berhasil keluar dari akun Google.', 'info');
     } catch (err) {
-      console.error('Logout error', err);
+      // Handled silently
     }
   };
 
@@ -277,7 +277,6 @@ export default function App() {
       setShowPublishModal(false);
       setShowSuccessModal(true);
     } catch (err: any) {
-      console.error('Publish error:', err);
       showNotification(`Gagal membuat Google Form: ${err.message || 'Terjadi kesalahan pada Google Forms API'}`, 'error');
     } finally {
       setIsPublishing(false);

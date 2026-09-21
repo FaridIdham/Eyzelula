@@ -142,7 +142,6 @@ export async function sendQuizReadyNotification({
     const data = await res.json();
     return { success: true, messageId: data.id };
   } catch (error: any) {
-    console.error('Gmail send error:', error);
     return { success: false, error: error.message };
   }
 }
@@ -287,7 +286,6 @@ export async function sendCheatingViolationNotification({
     const data = await res.json();
     return { success: true, messageId: data.id };
   } catch (error: any) {
-    console.error('Cheating notification email error:', error);
     return { success: false, error: error.message };
   }
 }
