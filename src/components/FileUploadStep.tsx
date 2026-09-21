@@ -9,6 +9,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { QuizData } from '../types';
+import { extractQuestionsInBrowser } from '../utils/clientDocumentExtractor';
 
 interface FileUploadStepProps {
   onQuizExtracted: (quiz: QuizData, fileName: string, fileType: 'docx' | 'pdf' | 'text', fallbackNotice?: string) => void;
@@ -93,6 +94,10 @@ export const FileUploadStep: React.FC<FileUploadStepProps> = ({
         setErrorMsg('Silakan pilih file soal (.docx atau .pdf) terlebih dahulu.');
         return;
       }
+      if (selectedFile.size > 4.5 * 1024 * 1024) {
+        setErrorMsg('Ukuran file melebihi 4.5 MB (batas serverless). Silakan kompres file atau gunakan tab "Salin / Tempel Teks" untuk proses yang lebih cepat.');
+        return;
+      }
     } else if (activeTab === 'text') {
       if (!rawText.trim()) {
         setErrorMsg('Silakan tempel atau ketik teks soal ujian terlebih dahulu.');
@@ -122,37 +127,63 @@ export const FileUploadStep: React.FC<FileUploadStepProps> = ({
 
       setLoadingStep('Analisis AI Gemini: Mendeteksi soal, pilihan, dan kunci jawaban...');
 
-      const response = await fetch('/api/extract-questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileBase64,
-          mimeType,
-          fileName,
-          rawText: activeTab === 'text' ? rawText : undefined,
-          userPrompt: `${userPrompt}. Bobot standar per soal: ${defaultPoints} poin.`
-        })
-      });
+      let result: any = null;
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        let fullError = errData.error || `HTTP ${response.status}: Gagal memproses dokumen.`;
-        if (response.status === 404) {
-          fullError = 'Layanan backend /api/extract-questions tidak ditemukan (HTTP 404). Pastikan file vercel.json dan folder api/ telah disertakan pada deployment Vercel Anda.';
+      try {
+        const response = await fetch('/api/extract-questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileBase64,
+            mimeType,
+            fileName,
+            rawText: activeTab === 'text' ? rawText : undefined,
+            userPrompt: `${userPrompt}. Bobot standar per soal: ${defaultPoints} poin.`
+          })
+        });
+
+        if (response.ok) {
+          result = await response.json();
+        } else {
+          console.warn(`Backend /api/extract-questions returned status ${response.status}. Falling back to browser client-side parser...`);
+          setLoadingStep('Beralih otomatis ke parser cerdas di browser (Client-Side Mode)...');
+          const clientData = await extractQuestionsInBrowser(
+            {
+              file: activeTab === 'upload' ? selectedFile : null,
+              rawText: activeTab === 'text' ? rawText : undefined,
+              fileName
+            },
+            defaultPoints
+          );
+          result = {
+            success: true,
+            fallbackUsed: true,
+            quizData: clientData,
+            message: 'Soal berhasil diproses langsung oleh parser cerdas browser (Client-Side Mode).'
+          };
         }
-        if (errData.details) {
-          fullError += ` Detail: ${errData.details}`;
-        }
-        if (errData.suggestion) {
-          fullError += ` Saran: ${errData.suggestion}`;
-        }
-        throw new Error(fullError);
+      } catch (fetchErr) {
+        console.warn('Network call failed, falling back to browser client-side parser...', fetchErr);
+        setLoadingStep('Beralih otomatis ke ekstraksi mandiri di browser (Client-Side Mode)...');
+        const clientData = await extractQuestionsInBrowser(
+          {
+            file: activeTab === 'upload' ? selectedFile : null,
+            rawText: activeTab === 'text' ? rawText : undefined,
+            fileName
+          },
+          defaultPoints
+        );
+        result = {
+          success: true,
+          fallbackUsed: true,
+          quizData: clientData,
+          message: 'Soal berhasil diproses langsung oleh parser cerdas browser (Client-Side Mode).'
+        };
       }
 
       setLoadingStep('Memformat struktur butir soal...');
-      const result = await response.json();
 
-      if (!result.quizData || !result.quizData.questions || result.quizData.questions.length === 0) {
+      if (!result || !result.quizData || !result.quizData.questions || result.quizData.questions.length === 0) {
         throw new Error('Tidak ditemukan butir soal yang valid dalam dokumen ini. Pastikan dokumen memiliki format soal bernomor.');
       }
 
