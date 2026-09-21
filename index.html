@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doc &amp; PDF to Google Forms Converter</title>
+    <meta name="description" content="Konversi soal dokumen Word dan PDF menjadi kuis Google Form secara otomatis dengan AI, dilengkapi dashboard riwayat, editor soal interaktif, ekspor CSV, dan panduan lengkap." />
+    <meta property="og:title" content="Doc &amp; PDF to Google Forms Converter" />
+    <meta property="og:description" content="Konversi soal dokumen Word dan PDF menjadi kuis Google Form secara otomatis dengan AI, dilengkapi dashboard riwayat, editor soal interaktif, ekspor CSV, dan panduan lengkap." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Suppress benign Vite HMR WebSocket connection logs in sandboxed development environment
+      (function() {
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event.reason;
+          var msg = (reason && (reason.message || reason.stack || '' + reason)) || '';
+          if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('websocket') !== -1 || msg.indexOf('[vite]') !== -1) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+
+        window.addEventListener('error', function(event) {
+          var msg = event.message || '';
+          if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('websocket') !== -1 || msg.indexOf('[vite]') !== -1) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+
+        var originalConsoleError = console.error;
+        console.error = function() {
+          var firstArg = arguments[0];
+          if (typeof firstArg === 'string' && (firstArg.indexOf('[vite]') !== -1 || firstArg.indexOf('WebSocket closed without opened') !== -1)) {
+            return;
+          }
+          return originalConsoleError.apply(console, arguments);
+        };
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
