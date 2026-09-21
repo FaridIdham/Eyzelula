@@ -137,6 +137,9 @@ export const FileUploadStep: React.FC<FileUploadStepProps> = ({
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         let fullError = errData.error || `HTTP ${response.status}: Gagal memproses dokumen.`;
+        if (response.status === 404) {
+          fullError = 'Layanan backend /api/extract-questions tidak ditemukan (HTTP 404). Pastikan file vercel.json dan folder api/ telah disertakan pada deployment Vercel Anda.';
+        }
         if (errData.details) {
           fullError += ` Detail: ${errData.details}`;
         }

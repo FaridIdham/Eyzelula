@@ -128,6 +128,8 @@ export default function App() {
     } catch (err: any) {
       if (err?.code === 'auth/popup-blocked') {
         showNotification('Jendela popup diblokir oleh browser. Izinkan popup atau buka aplikasi di tab baru.', 'error');
+      } else if (err?.code === 'auth/unauthorized-domain') {
+        showNotification(`Domain ${window.location.hostname} belum didaftarkan di Firebase Console > Authentication > Settings > Authorized domains.`, 'error');
       } else {
         showNotification(`Gagal masuk dengan Google: ${err.message || 'Periksa izin popup browser Anda'}`, 'error');
       }
